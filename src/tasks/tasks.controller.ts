@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -13,12 +15,12 @@ export class TasksController {
   }
 
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateTaskDto) {
     return { message: 'Tarefa criada', data: body };
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Param('id') id: string, @Body() body: UpdateTaskDto) {
     return { message: 'Tarefa atualizada', id, data: body };
   }
 
