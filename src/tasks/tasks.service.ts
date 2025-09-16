@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { Task } from './task.interface';
+import { Tasks } from './tasks.interface';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [];
+  private tasks: Tasks[] = [];
 
-  getAllTasks(): Task[] {
+  getAllTasks(): Tasks[] {
     return this.tasks;
   }
 
-  getTaskById(id: string): Task | undefined {
+  getTaskById(id: string): Tasks | undefined {
     return this.tasks.find(t => t.id === id);
   }
 
-  createTask(title: string, description: string): Task {
-    const task: Task = {
+  createTask(title: string, description: string): Tasks {
+    const task: Tasks = {
       id: Math.random().toString(36).substr(2, 9),
       title,
       description,
