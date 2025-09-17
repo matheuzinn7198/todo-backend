@@ -1,31 +1,70 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+// src/tasks/tasks.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-
+import { TaskEntity } from './entities/tasks.entity';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../common/enum/role.enum';
+import { RolesGuard } from '../auth/decorators/roles.guard';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import type { UserPayload } from '../auth/interfaces/user-payload.interface';
+import { PaginationResponseDto } from 'src/common/dto/pagination-response';
 @Controller('tasks')
+@UseGuards(AuthGuard('jwt'))
 export class TasksController {
+  constructor(private readonly tasksService: TasksService) {}
+
+  @Post()
+  async create(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: UserPayload,
+  ): Promise<TaskEntity> {
+    return await this.tasksService.create(createTaskDto, user.userId);
+  }
+
   @Get()
-  getAll() {
-    return ['Tarefa 1', 'Tarefa 2'];
+  async findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ): Promise<PaginationResponseDto<TaskEntity>> {
+    limit = limit > 100 ? 100 : limit;
+    return await this.tasksService.findAll({ page, limit },);
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string) {
-    return { id, name: 'Tarefa exemplo' };
-  }
-
-  @Post()
-  create(@Body() body: CreateTaskDto) {
-    return { message: 'Tarefa criada', data: body };
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<TaskEntity> {
+    return await this.tasksService.findOne(id);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: UpdateTaskDto) {
-    return { message: 'Tarefa atualizada', id, data: body };
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<TaskEntity> {
+    return await this.tasksService.update(id, updateTaskDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return { message: 'Tarefa removida', id };
+  @Roles(Role.Admin)
+  @UseGuards(RolesGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return await this.tasksService.remove(id);
   }
 }

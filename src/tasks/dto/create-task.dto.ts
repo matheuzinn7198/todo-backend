@@ -1,13 +1,16 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+// src/tasks/dto/create-task.dto.ts
+import { IsString, IsBoolean, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class CreateTaskDto {
-    @IsString()
-    @IsNotEmpty()
-    @MaxLength(50)
-    title: string;
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @MaxLength(200)
-    description: string;
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  completed?: boolean = false;
 }

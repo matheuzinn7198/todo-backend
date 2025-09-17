@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 /**
  * Este arquivo de configuração é usado exclusivamente pela CLI do TypeORM
@@ -18,4 +19,5 @@ export default new DataSource({
 
   // Caminho para onde as migrations serão geradas e de onde serão lidas.
   migrations: [__dirname + '/src/migrations/*{.ts,.js}'],
+  synchronize: true
 });
